@@ -1,8 +1,8 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-
-
 import { AppComponent } from './app.component';
+import {SwarmService} from './services/swarm.service';
+import {HttpClientModule} from '@angular/common/http';
 
 
 @NgModule({
@@ -10,9 +10,10 @@ import { AppComponent } from './app.component';
     AppComponent
   ],
   imports: [
-    BrowserModule
+    BrowserModule,
+    HttpClientModule
   ],
-  providers: [],
+  providers: [SwarmService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

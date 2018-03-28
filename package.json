@@ -1,6 +1,7 @@
 {
   "name": "docker-demo-angular",
   "version": "0.0.0",
+  "author": "Pawel Paszki",
   "license": "MIT",
   "scripts": {
     "ng": "ng",

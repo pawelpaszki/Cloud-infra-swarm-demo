@@ -1,2 +1,61 @@
-
-
+<nav class="navbar navbar-dark bg-dark">
+  <h4 class="navbar-text">
+    Cloud infrastructures Docker Swarm Demo
+  </h4>
+  <ul class="navbar-nav">
+    <li class="nav-item">
+      <button class="btn btn-dark"><span class="fa fa-refresh" style="font-size: 1.5em;" (click)="getInstancesDetails()"></span></button>
+    </li>
+  </ul>
+</nav>
+<div class="row" style="height: 3em; margin-left:3em; padding-top: 0.5em;">
+  <div style="height: 100%" *ngIf="currentOperation !== ''">
+    <h4 style="color: blue;">{{currentOperation}}
+      <span class="fa fa-spinner fa-spin" style="font-size:1.2em;"></span>
+    </h4>
+  </div>
+</div>
+<div class="row" style="margin:1em;">
+  <div class="col-4" *ngFor="let instance of instances">
+    <div class="card h-300">
+      <div class="card-block">
+        <div class="card-header text-white bg-primary">
+          <h5 class="card-title">Instance ID: {{instance.instanceId}}</h5>
+          <h5 class="card-title">Private IP: {{instance.privateIp}}</h5>
+          <h5 class="card-text">Public DNS: {{instance.publicDns}}</h5>
+        </div>
+        <div style="margin: 1em;">
+          <h4 style="display:inline;" class="card-text"><span class="badge badge-pill badge-secondary">isManager:</span> <span *ngIf="instance.isManager && buttonsVisible" class="fa fa-check-circle" style="color: green"></span>
+          </h4>
+          <button style="margin-top: -0.3em;" *ngIf="!swarmCreated  && buttonsVisible" type="button" class="btn btn-success btn-sm" (click)="createSwarm(instance.publicDns)">create swarm</button>
+          <button style="margin-top: -0.3em;" *ngIf="swarmCreated  && buttonsVisible && instance.isManager && serviceData.length === 0 && instance.availability !== 'Drain'" type="button" class="btn btn-success btn-sm" (click)="scaleService(instance.publicDns)">create alpine replicas</button>
+          <button style="margin-top: -0.3em;" *ngIf="swarmCreated  && buttonsVisible && instance.isManager && isTheOnlyMember(instance.privateIp)" type="button" class="btn btn-danger btn-sm" (click)="deleteSwarm(instance.publicDns)">delete swarm</button>
+          <br>
+          <p style="height:0.01em; color:white;"></p>
+          <h4 style="display:inline;" class="card-text"> <span class="badge badge-pill badge-secondary">isWorker: </span> <span *ngIf="dockerNodeLsTokens.indexOf(instance.privateIp) !== -1 && !instance.isManager && buttonsVisible" class="fa fa-check-circle" style="color: green"></span>
+          </h4>
+          <button style="margin-top: -0.3em;" *ngIf="dockerNodeLsTokens.indexOf(instance.privateIp) === -1 && !instance.isManager && swarmCreated && buttonsVisible" type="button" class="btn btn-success btn-sm" (click)="joinSwarm(instance.publicDns)">join swarm</button>
+          <button style="margin-top: -0.3em;" *ngIf="dockerNodeLsTokens.indexOf(instance.privateIp) !== -1 && !instance.isManager && buttonsVisible && !isDown(instance.privateIp)" type="button" class="btn btn-danger btn-sm" (click)="leaveSwarm(instance.publicDns)">leave swarm</button>
+          <button style="margin-top: -0.3em;" *ngIf="dockerNodeLsTokens.indexOf(instance.privateIp) !== -1 && !instance.isManager && buttonsVisible && isDown(instance.privateIp)" type="button" class="btn btn-danger btn-sm" (click)="removeFromSwarm(instance.privateIp)">remove from swarm</button>
+          <br>
+          <p style="height:0.01em; color:white;"></p>
+          <h4 style="display:inline;" class="card-text"> <span class="badge badge-pill badge-secondary">availability: </span> {{instance.availability}}
+          </h4>
+          <button style="margin-top: -0.3em;" *ngIf="dockerNodeLsTokens.indexOf(instance.privateIp) !== -1 && buttonsVisible && instance.availability === 'Drain'" type="button" class="btn btn-success btn-sm" (click)="makeAvailable(instance.privateIp)">make available</button>
+          <button style="margin-top: -0.3em;" *ngIf="dockerNodeLsTokens.indexOf(instance.privateIp) !== -1 && buttonsVisible && instance.availability === 'Active'" type="button" class="btn btn-danger btn-sm" (click)="drainNode(instance.privateIp)">drain</button>
+        </div>
+        <div class="card text-white text-center bg-secondary mb-3">
+          <h5 class="card-title" style="padding-top: 0.5em;">Services:
+            <span *ngIf="instance.isManager && serviceData.length > 0 && buttonsVisible" style="color: red" class="fa fa-trash" (click)="removeServices(instance.publicDns)"></span>
+          </h5>
+        </div>
+        <div class="card-text" *ngFor="let service of instance.services">
+          <h6>{{service}}</h6>
+        </div>
+        <div class="card-footer text-white bg-primary">
+          <h5 class="card-text text-center"><small>Launched: {{instance.launchTime | date:'medium'}}</small></h5>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
